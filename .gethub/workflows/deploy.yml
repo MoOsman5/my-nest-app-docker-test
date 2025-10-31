@@ -1,0 +1,55 @@
+name: CI/CD - NestJS Docker (pnpm)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 🧾 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 🧰 2. Setup pnpm and Node
+      - name: Enable Corepack & Setup pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      # 📦 3. Install dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 🏗️ 4. Build the NestJS project
+      - name: Build project
+        run: pnpm run build
+
+      # 🐳 5. Build Docker image
+      - name: Build Docker image
+        run: docker build -t my-nest-app .
+
+      # ✅ 6. Run tests (optional)
+      # - name: Run tests
+      #   run: pnpm run test
+
+      # 📤 7. Push image to Docker Hub (optional)
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
+      #
+      # - name: Push Docker image
+      #   run: |
+      #     docker tag my-nest-app ${{ secrets.DOCKER_USERNAME }}/my-nest-app:latest
+      #     docker push ${{ secrets.DOCKER_USERNAME }}/my-nest-app:latest

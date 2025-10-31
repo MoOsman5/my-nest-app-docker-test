@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  nest-app:
+    build: .
+    container_name: my-nest-app-docker-test
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: always
